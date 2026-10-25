@@ -19,6 +19,9 @@ PRIORIDADES_VALIDAS = {
     "baixa": "Baixa",
 }
 
+# Ordem de exibição das prioridades na listagem (regra R8).
+ORDEM_PRIORIDADE = {"Alta": 0, "Média": 1, "Baixa": 2}
+
 FORMATO_DATA = "%d/%m/%Y"
 
 LINHA = "=" * 60
@@ -126,6 +129,15 @@ def cadastrar_tarefa(tarefas, proximo_id):
     return proximo_id + 1
 
 
+def chave_ordenacao(tarefa):
+    """
+    Regra R8: ordena por prioridade (Alta -> Média -> Baixa) e,
+    em caso de empate, pela data limite mais próxima.
+    """
+    data = datetime.strptime(tarefa["data_limite"], FORMATO_DATA)
+    return (ORDEM_PRIORIDADE[tarefa["prioridade"]], data)
+
+
 def exibir_tarefa(tarefa):
     """Mostra todas as propriedades de uma tarefa de forma legível."""
     descricao = tarefa["descricao"] if tarefa["descricao"] else "(sem descrição)"
@@ -145,10 +157,10 @@ def visualizar_tarefas(tarefas):
         print("Nenhuma tarefa cadastrada até o momento.")
         return
 
-    for tarefa in tarefas:
+    for tarefa in sorted(tarefas, key=chave_ordenacao):
         exibir_tarefa(tarefa)
     print(SEPARADOR)
-    print(f"Total: {len(tarefas)} tarefa(s).")
+    print(f"Total: {len(tarefas)} tarefa(s), ordenadas por prioridade e data limite.")
 
 
 def main():
