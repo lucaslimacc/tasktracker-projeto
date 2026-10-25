@@ -8,6 +8,19 @@ Implementa a "receita lógica" planejada na Fase 1:
 menu principal, cadastro de tarefas e visualização das tarefas cadastradas.
 """
 
+from datetime import datetime
+
+# Prioridades aceitas (regra R2). A chave é o que o usuário pode digitar
+# (sem diferenciar maiúsculas/minúsculas); o valor é a forma padronizada salva.
+PRIORIDADES_VALIDAS = {
+    "alta": "Alta",
+    "média": "Média",
+    "media": "Média",
+    "baixa": "Baixa",
+}
+
+FORMATO_DATA = "%d/%m/%Y"
+
 LINHA = "=" * 60
 SEPARADOR = "-" * 60
 
@@ -24,6 +37,63 @@ def exibir_menu():
     print(LINHA)
 
 
+# ---------------------------------------------------------------------------
+# Validações das regras de negócio
+# ---------------------------------------------------------------------------
+
+def validar_titulo(texto):
+    """Regra R1: o título não pode ser vazio nem composto só por espaços."""
+    return texto.strip() != ""
+
+
+def validar_prioridade(texto):
+    """
+    Regra R2: aceita apenas Alta, Média (ou Media) e Baixa.
+    Retorna a prioridade padronizada, ou None se for inválida.
+    """
+    return PRIORIDADES_VALIDAS.get(texto.strip().lower())
+
+
+def validar_data(texto):
+    """Regra R6: a data deve estar no formato DD/MM/AAAA e existir no calendário."""
+    try:
+        datetime.strptime(texto.strip(), FORMATO_DATA)
+        return True
+    except ValueError:
+        return False
+
+
+def ler_titulo():
+    """Pede o título até que um valor válido seja informado."""
+    while True:
+        titulo = input("Título: ").strip()
+        if validar_titulo(titulo):
+            return titulo
+        print("Erro: o título da tarefa não pode ficar vazio. Tente novamente.\n")
+
+
+def ler_prioridade():
+    """Pede a prioridade até que uma das opções aceitas seja informada."""
+    while True:
+        prioridade = validar_prioridade(input("Prioridade (Alta / Média / Baixa): "))
+        if prioridade:
+            return prioridade
+        print("Erro: prioridade inválida. Use Alta, Média ou Baixa.\n")
+
+
+def ler_data_limite():
+    """Pede a data limite até que uma data válida no formato DD/MM/AAAA seja informada."""
+    while True:
+        data = input("Data limite (DD/MM/AAAA): ").strip()
+        if validar_data(data):
+            return data
+        print("Erro: data inválida. Use o formato DD/MM/AAAA (ex.: 25/10/2026).\n")
+
+
+# ---------------------------------------------------------------------------
+# Funcionalidades do sistema
+# ---------------------------------------------------------------------------
+
 def pausar():
     """Aguarda o usuário pressionar Enter antes de voltar ao menu."""
     input("\nPressione Enter para voltar ao menu...")
@@ -37,10 +107,10 @@ def cadastrar_tarefa(tarefas, proximo_id):
     """
     print("\n--- CADASTRAR NOVA TAREFA ---\n")
 
-    titulo = input("Título: ").strip()
+    titulo = ler_titulo()
     descricao = input("Descrição (opcional): ").strip()
-    prioridade = input("Prioridade (Alta / Média / Baixa): ").strip()
-    data_limite = input("Data limite (DD/MM/AAAA): ").strip()
+    prioridade = ler_prioridade()
+    data_limite = ler_data_limite()
 
     tarefa = {
         "id": proximo_id,
