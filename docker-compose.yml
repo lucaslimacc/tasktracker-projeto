@@ -1,0 +1,9 @@
+services:
+  tasktracker-app:
+    build: .
+    image: tasktracker
+    container_name: tasktracker-app
+    # Mantém a entrada de dados (teclado) aberta para o input() do menu
+    stdin_open: true
+    # Aloca um terminal virtual, simulando o console do usuário
+    tty: true
